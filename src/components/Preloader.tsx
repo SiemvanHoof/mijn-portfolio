@@ -8,7 +8,7 @@ import { useSmoothScroll } from "./SmoothScroll";
 const STORAGE_KEY = "preloaded";
 
 // Snelheid: hoe lang de teller over 0 → 100 doet (in seconden)
-const COUNT_DURATION = 5;
+const COUNT_DURATION = 3;
 
 // Placeholderbeelden — later vervangen door je eigen beelden in /public
 const images = [1, 2, 3, 4, 5].map((n) => `https://picsum.photos/seed/portfolio-${n}/600/800`);
