@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import SmoothScroll from "@/components/SmoothScroll";
 import Header from "@/components/Header";
 import Preloader from "@/components/Preloader";
-import PageTransition from "@/components/PageTransitions";
+import PageTransitions from "@/components/PageTransitions";
 import Footer from "@/components/Footer";
 import { siteName, siteUrl } from "@/data/site";
 
@@ -36,10 +37,12 @@ const preloadCheck = `try{if(sessionStorage.getItem("preloaded")||location.pathn
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="nl" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: preloadCheck }} />
-      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Draait vóór React laadt, zodat de preloader niet even flitst */}
+        <Script id="preload-check" strategy="beforeInteractive">
+          {preloadCheck}
+        </Script>
+
         {/* Verschijnt pas als je op Tab drukt */}
         <a
           href="#content"
@@ -52,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SmoothScroll>
             <Header />
             <Preloader />
-            <PageTransition />
+            <PageTransitions />
             <div id="content" tabIndex={-1}>
               {children}
             </div>
