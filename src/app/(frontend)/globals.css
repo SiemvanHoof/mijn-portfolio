@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* dark: werkt op basis van een .dark class op <html> */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -11,10 +12,23 @@
   --surface: #f4f4f5;
   --frame: #0b0b0f;
 
+  /* Accent (wordt nu niet gebruikt, kan blijven staan) */
   --accent: #e55a2b;
   --accent-2: #ec7a32;
 }
 
+/* Lichte kleuren, ook te gebruiken op één sectie ("Altijd wit") */
+.light {
+  --bg: #ffffff;
+  --fg: #020108;
+  --muted: #5f5f66;
+  --line: rgb(2 1 8 / 0.12);
+  --panel: #e4e4e7;
+  --surface: #f4f4f5;
+  --frame: #0b0b0f;
+}
+
+/* Donkere kleuren: op <html> voor dark mode, of op één sectie ("Altijd zwart") */
 .dark {
   --bg: #020108;
   --fg: #f5f5f5;
@@ -42,12 +56,14 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+/* Duidelijke focusrand voor toetsenbordgebruikers */
 :focus-visible {
   outline: 2px solid var(--fg);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
+/* Geen rand op elementen die we alleen via code focussen (zoals de pagina-inhoud) */
 [tabindex="-1"]:focus {
   outline: none;
 }

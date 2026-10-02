@@ -67,8 +67,9 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    pages: Page;
     media: Media;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -76,8 +77,9 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -119,29 +121,92 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "pages".
  */
-export interface User {
+export interface Page {
   id: number;
+  title: string;
+  /**
+   * Het adres van de pagina, bijv. 'privacy' wordt /privacy. Leeg laten = automatisch uit de titel.
+   */
+  slug?: string | null;
+  layout?: (IntroBlockData | TextBlockData | ImageBlockData)[] | null;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IntroBlockData".
+ */
+export interface IntroBlockData {
+  layout?: ('line' | 'split') | null;
+  /**
+   * Klein woord links, bijv. 'Werkwijze'.
+   */
+  label?: string | null;
+  /**
+   * Elke regel wordt een aparte regel die omhoog schuift.
+   */
+  heading: string;
+  text?: string | null;
+  style?: {
+    background?: ('default' | 'surface' | 'dark' | 'light') | null;
+    spacing?: ('small' | 'normal' | 'large') | null;
+    borderTop?: boolean | null;
+    animate?: boolean | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'intro';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TextBlockData".
+ */
+export interface TextBlockData {
+  /**
+   * Met label: label links met lijn, tekst rechts. Zonder: alleen tekst.
+   */
+  label?: string | null;
+  /**
+   * Laat een lege regel tussen alinea's. De eerste alinea is donkerder.
+   */
+  body: string;
+  width?: ('narrow' | 'wide') | null;
+  align?: ('left' | 'center') | null;
+  style?: {
+    background?: ('default' | 'surface' | 'dark' | 'light') | null;
+    spacing?: ('small' | 'normal' | 'large') | null;
+    borderTop?: boolean | null;
+    animate?: boolean | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'text';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageBlockData".
+ */
+export interface ImageBlockData {
+  /**
+   * Eén beeld, of twee die versprongen naast elkaar staan.
+   */
+  images: (number | Media)[];
+  position?: ('left' | 'center' | 'right' | 'full') | null;
+  size?: ('small' | 'medium' | 'large') | null;
+  parallax?: boolean | null;
+  caption?: string | null;
+  style?: {
+    background?: ('default' | 'surface' | 'dark' | 'light') | null;
+    spacing?: ('small' | 'normal' | 'large') | null;
+    borderTop?: boolean | null;
+    animate?: boolean | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'image';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -168,6 +233,32 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -191,12 +282,16 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'pages';
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -242,6 +337,104 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  layout?:
+    | T
+    | {
+        intro?: T | IntroBlockDataSelect<T>;
+        text?: T | TextBlockDataSelect<T>;
+        image?: T | ImageBlockDataSelect<T>;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IntroBlockData_select".
+ */
+export interface IntroBlockDataSelect<T extends boolean = true> {
+  layout?: T;
+  label?: T;
+  heading?: T;
+  text?: T;
+  style?:
+    | T
+    | {
+        background?: T;
+        spacing?: T;
+        borderTop?: T;
+        animate?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TextBlockData_select".
+ */
+export interface TextBlockDataSelect<T extends boolean = true> {
+  label?: T;
+  body?: T;
+  width?: T;
+  align?: T;
+  style?:
+    | T
+    | {
+        background?: T;
+        spacing?: T;
+        borderTop?: T;
+        animate?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageBlockData_select".
+ */
+export interface ImageBlockDataSelect<T extends boolean = true> {
+  images?: T;
+  position?: T;
+  size?: T;
+  parallax?: T;
+  caption?: T;
+  style?:
+    | T
+    | {
+        background?: T;
+        spacing?: T;
+        borderTop?: T;
+        animate?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -262,25 +455,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
-  _objectKey?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

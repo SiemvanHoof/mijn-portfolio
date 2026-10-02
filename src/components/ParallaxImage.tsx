@@ -1,11 +1,24 @@
 "use client";
 import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 
-type Props = { src: string; alt?: string; className?: string };
+type Props = {
+  src: string;
+  alt?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  reveal?: boolean;
+  parallax?: boolean;
+};
 
-export default function ParallaxImage({ src, alt = "", className = "" }: Props) {
+export default function ParallaxImage({
+  src,
+  alt = "",
+  className = "",
+  style,
+  reveal = true,
+  parallax = true,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -14,35 +27,43 @@ export default function ParallaxImage({ src, alt = "", className = "" }: Props) 
       const box = ref.current!;
 
       // Opent van onder naar boven zodra het in beeld komt
-      gsap.fromTo(
-        box,
-        { clipPath: "inset(100% 0% 0% 0%)" },
-        {
-          clipPath: "inset(0% 0% 0% 0%)",
-          duration: 1.2,
-          ease: "power4.inOut",
-          scrollTrigger: { trigger: box, start: "top 85%" },
-        }
-      );
+      if (reveal) {
+        gsap.fromTo(
+          box,
+          { clipPath: "inset(100% 0% 0% 0%)" },
+          {
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: 1.2,
+            ease: "power4.inOut",
+            scrollTrigger: { trigger: box, start: "top 85%" },
+          }
+        );
+      }
 
       // De foto beweegt licht mee tijdens het scrollen
-      gsap.fromTo(
-        box.querySelector("img"),
-        { yPercent: -6 },
-        {
-          yPercent: 6,
-          ease: "none",
-          scrollTrigger: { trigger: box, start: "top bottom", end: "bottom top", scrub: true },
-        }
-      );
+      if (parallax) {
+        gsap.fromTo(
+          box.querySelector("img"),
+          { yPercent: -6 },
+          {
+            yPercent: 6,
+            ease: "none",
+            scrollTrigger: { trigger: box, start: "top bottom", end: "bottom top", scrub: true },
+          }
+        );
+      }
     },
     { scope: ref }
   );
 
   return (
-    <div ref={ref} className={`overflow-hidden rounded-[1.25rem] bg-surface ${className}`}>
+    <div ref={ref} style={style} className={`overflow-hidden rounded-[1.25rem] bg-surface ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="h-full w-full scale-[1.15] object-cover" />
+      <img
+        src={src}
+        alt={alt}
+        className={`h-full w-full object-cover ${parallax ? "scale-[1.15]" : ""}`}
+      />
     </div>
   );
 }
